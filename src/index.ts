@@ -27,8 +27,8 @@ export default class CronMongo extends Cron {
         return super.tryStartRun(force);
     }
 
-    runCompleted() {
-        super.runCompleted();
+    runCompleted(abort = false) {
+        super.runCompleted(abort);
         this.isDbIdle = false;
         this.dbVar
             .set('cron ' + this.name, this.lastRunAt)
