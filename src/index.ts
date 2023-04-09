@@ -17,7 +17,7 @@ export default class CronMongo extends Cron {
         this.name = name;
         this.dbVar = dbVar;
         this.dbVar.get('cron ' + this.name).then((value) => {
-            this.lastRunAt = value
+            if (value) this.lastRunAt = value
             this.isDbIdle = true   
         });
     }
