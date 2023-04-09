@@ -16,7 +16,10 @@ export default class CronMongo extends Cron {
         super(everySeconds, consoleLog);
         this.name = name;
         this.dbVar = dbVar;
-        this.dbVar.get('cron ' + this.name).then(() => (this.isDbIdle = true));
+        this.dbVar.get('cron ' + this.name).then((value) => {
+            this.lastRunAt = value
+            this.isDbIdle = true   
+        });
     }
 
     tryStartRun(force?: boolean) {
