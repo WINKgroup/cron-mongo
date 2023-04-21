@@ -22,8 +22,28 @@ export default class CronMongo extends Cron {
         });
     }
 
+    async waitForDbIdle() {
+        return new Promise<void>( resolve => {
+            const handler = setInterval( () => {
+                this.consoleLog.debug(`waiting for db to be idle...`)
+                if(this.isDbIdle) {
+                    clearInterval(handler)
+                    resolve()
+                }
+            }, 100)
+        })
+    }
+
+    async checkDbThenTryStartRun(force?: boolean) {
+        if (this.everySeconds === 0 || force) return this.tryStartRun(force)
+        await this.waitForDbIdle()
+        const lastRunAt = await this.dbVar.get('cron ' + this.name) as number
+        if (lastRunAt) this.lastRunAt = lastRunAt
+        return this.tryStartRun(force)
+    }
+
     tryStartRun(force?: boolean) {
-        if (!force && !this.isDbIdle) {
+        if (!force && this.everySeconds > 0 && !this.isDbIdle) {
             this.consoleLog.debug('cron operating on DB: not starting yet');
             return false;
         }
@@ -32,9 +52,12 @@ export default class CronMongo extends Cron {
 
     runCompleted(abort = false) {
         super.runCompleted(abort);
-        this.isDbIdle = false;
-        this.dbVar
-            .set('cron ' + this.name, this.lastRunAt)
-            .then(() => (this.isDbIdle = true));
+        if (!abort) {
+            this.isDbIdle = false;
+            this.dbVar
+                .set('cron ' + this.name, this.lastRunAt)
+                .then(() => {this.isDbIdle = true});
+        }
+
     }
 }
