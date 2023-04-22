@@ -50,14 +50,20 @@ export default class CronMongo extends Cron {
         return super.tryStartRun(force);
     }
 
-    runCompleted(abort = false, callback?: (abort: boolean) => void) {
+    runCompleted(abort = false, callback?: () => void) {
         super.runCompleted(abort);
         if (!abort) {
             this.isDbIdle = false;
             this.dbVar.set('cron ' + this.name, this.lastRunAt).then(() => {
                 this.isDbIdle = true;
-                if (callback) callback(abort);
+                if (callback) callback();
             });
         }
+    }
+
+    runCompletedPromise(abort = false) {
+        return new Promise<void>( resolve => {
+            this.runCompleted( abort, resolve )
+        })
     }
 }
