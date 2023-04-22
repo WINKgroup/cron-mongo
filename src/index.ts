@@ -17,29 +17,29 @@ export default class CronMongo extends Cron {
         this.name = name;
         this.dbVar = dbVar;
         this.dbVar.get('cron ' + this.name).then((value) => {
-            if (value) this.lastRunAt = value
-            this.isDbIdle = true   
+            if (value) this.lastRunAt = value;
+            this.isDbIdle = true;
         });
     }
 
     async waitForDbIdle() {
-        return new Promise<void>( resolve => {
-            const handler = setInterval( () => {
-                this.consoleLog.debug(`waiting for db to be idle...`)
-                if(this.isDbIdle) {
-                    clearInterval(handler)
-                    resolve()
+        return new Promise<void>((resolve) => {
+            const handler = setInterval(() => {
+                this.consoleLog.debug(`waiting for db to be idle...`);
+                if (this.isDbIdle) {
+                    clearInterval(handler);
+                    resolve();
                 }
-            }, 100)
-        })
+            }, 100);
+        });
     }
 
     async checkDbThenTryStartRun(force?: boolean) {
-        if (this.everySeconds === 0 || force) return this.tryStartRun(force)
-        await this.waitForDbIdle()
-        const lastRunAt = await this.dbVar.get('cron ' + this.name) as number
-        if (lastRunAt) this.lastRunAt = lastRunAt
-        return this.tryStartRun(force)
+        if (this.everySeconds === 0 || force) return this.tryStartRun(force);
+        await this.waitForDbIdle();
+        const lastRunAt = (await this.dbVar.get('cron ' + this.name)) as number;
+        if (lastRunAt) this.lastRunAt = lastRunAt;
+        return this.tryStartRun(force);
     }
 
     tryStartRun(force?: boolean) {
@@ -50,14 +50,14 @@ export default class CronMongo extends Cron {
         return super.tryStartRun(force);
     }
 
-    runCompleted(abort = false) {
+    runCompleted(abort = false, callback?: (abort: boolean) => void) {
         super.runCompleted(abort);
         if (!abort) {
             this.isDbIdle = false;
-            this.dbVar
-                .set('cron ' + this.name, this.lastRunAt)
-                .then(() => {this.isDbIdle = true});
+            this.dbVar.set('cron ' + this.name, this.lastRunAt).then(() => {
+                this.isDbIdle = true;
+                if (callback) callback(abort);
+            });
         }
-
     }
 }
