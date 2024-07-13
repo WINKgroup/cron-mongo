@@ -1,6 +1,6 @@
 {
   "name": "@winkgroup/cron-mongo",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Cron management class with timestamp saved in mongo db",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
