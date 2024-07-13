@@ -1,21 +1,22 @@
 import ConsoleLog from '@winkgroup/console-log';
-import Cron from '@winkgroup/cron';
+import Cron, { CronOptions } from '@winkgroup/cron';
 import { DbVar } from '@winkgroup/db-mongo';
+
+export interface CronMongoInput extends Partial<CronOptions> {
+    name: string;
+    dbVar: DbVar;
+    everySeconds?: number;
+}
 
 export default class CronMongo extends Cron {
     name: string;
     dbVar: DbVar;
     protected isDbIdle = false;
 
-    constructor(
-        name: string,
-        dbVar: DbVar,
-        everySeconds = 0,
-        consoleLog?: ConsoleLog
-    ) {
-        super(everySeconds, consoleLog);
-        this.name = name;
-        this.dbVar = dbVar;
+    constructor(input: CronMongoInput) {
+        super(input.everySeconds, input);
+        this.name = input.name;
+        this.dbVar = input.dbVar;
         this.dbVar.get('cron ' + this.name).then((value) => {
             if (value) this.lastRunAt = value;
             this.isDbIdle = true;
@@ -25,11 +26,11 @@ export default class CronMongo extends Cron {
     async waitForDbIdle() {
         return new Promise<void>((resolve) => {
             const handler = setInterval(() => {
-                this.consoleLog.debug(`waiting for db to be idle...`);
                 if (this.isDbIdle) {
                     clearInterval(handler);
+                    this.consoleLog.debug(`db is idle`);
                     resolve();
-                }
+                } else this.consoleLog.debug(`waiting for db to be idle...`);
             }, 100);
         });
     }
@@ -62,8 +63,8 @@ export default class CronMongo extends Cron {
     }
 
     runCompletedPromise(abort = false) {
-        return new Promise<void>( resolve => {
-            this.runCompleted( abort, resolve )
-        })
+        return new Promise<void>((resolve) => {
+            this.runCompleted(abort, resolve);
+        });
     }
 }
