@@ -1,4 +1,3 @@
-import ConsoleLog from '@winkgroup/console-log';
 import Cron, { CronOptions } from '@winkgroup/cron';
 import { DbVar } from '@winkgroup/db-mongo';
 
