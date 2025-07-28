@@ -31,16 +31,16 @@
   },
   "homepage": "https://github.com/WINKgroup/cron-mongo#readme",
   "devDependencies": {
-    "@types/lodash": "^4.17.18",
-    "@types/node": "^24.0.3",
-    "prettier": "^3.5.3",
+    "@types/lodash": "^4.17.20",
+    "@types/node": "^24.1.0",
+    "prettier": "^3.6.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@winkgroup/console-log": "^3.0.3",
-    "@winkgroup/cron": "^2.2.4",
-    "@winkgroup/db-mongo": "^4.1.5",
+    "@winkgroup/cron": "^2.3.0",
+    "@winkgroup/db-mongo": "^4.1.8",
     "lodash": "^4.17.21",
-    "mongoose": "^8.16.0"
+    "mongoose": "^8.16.5"
   }
 }
